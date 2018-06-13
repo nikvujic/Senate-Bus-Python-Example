@@ -3,8 +3,8 @@ from threading import Thread
 import time
 import random
 
-redAutobusa = threading.Semaphore(1)  # osigurava da samo jedan autobus prima putnike
-stanica = threading.Semaphore(50)  # kontrolise koliko ljudi je na stanici
+redAutobusa = threading.Semaphore(1)  # makes sure only one bus takes passengers
+stanica = threading.Semaphore(50)  # controls how many people are at the station
 brojPutnika = 0
 putniciUAutobusu = 0
 zabranjenUlazak = threading.Semaphore(1)
@@ -15,24 +15,24 @@ class Stanica(Thread):
     def run(self):
         global brojPutnika
 
-        stanica.acquire()  # 50 putnika moze da udje na stanicu, ostali cekaju
+        stanica.acquire()  # 50 passengers can enter the station, the rest have to wait
 
-        # print("Putnik ceka")
-        # barijera za ulazak na stanicu
+        # print("Passenger waiting")
+        # barrier for entry to station
         zabranjenUlazak.acquire()
         zabranjenUlazak.release()
-        # print("Putnik usao")
+        # print("Passengers entered")
 
         brojPutnika = brojPutnika + 1
-        print("Broj putnika {}".format(brojPutnika))
+        print("Number of passengers: {}".format(brojPutnika))
 
-        # barijera za ulazak u autobus
+        # barrier for entry to the bus
         dozvoljenUlazak.acquire()
         dozvoljenUlazak.release()
 
-        stanica.release()  # putnik kada izadje oslobadja jedno mesto
+        stanica.release()  # passenger left, made more room
 
-        # putnik se ukrcava
+        # passenger boards the bus
         self.board_bus()
 
     @staticmethod
@@ -43,7 +43,7 @@ class Stanica(Thread):
         brojPutnika = brojPutnika - 1
 
         if brojPutnika == 0:
-            # print("Putnici ulaze")
+            # print("Passengers entering")
             # time.sleep(3)
             Autobusi.kreni()
 
@@ -51,8 +51,8 @@ class Stanica(Thread):
 class Autobusi(Thread):
     def run(self):
         global putniciUAutobusu
-        redAutobusa.acquire()  # samo jedan autobus moze da prima putnike
-        print("Autobus stigao")
+        redAutobusa.acquire()  # only one bus can take passengers
+        print("The bus arrives")
         putniciUAutobusu = 0
         zabranjenUlazak.acquire()
         dozvoljenUlazak.release()
@@ -60,14 +60,14 @@ class Autobusi(Thread):
     @staticmethod
     def kreni():
         global putniciUAutobusu
-        print("Autobus krece sa {} putnika".format(putniciUAutobusu))
+        print("The bus leaves with {} passengers".format(putniciUAutobusu))
         dozvoljenUlazak.acquire()
         zabranjenUlazak.release()
-        redAutobusa.release()  # autobus oslobadja mesto i odlazi sa svojim putnicima
+        redAutobusa.release()  # the bus releases and goes off with its passengers
 
 
 class SaljiAutobuse(Thread):
-    # salje autobus svakih 20 sekundi
+    # sends a bus every 20 seconds
     def run(self):
         while True:
             time.sleep(20)
@@ -75,7 +75,7 @@ class SaljiAutobuse(Thread):
 
 
 class SaljiPutnike(Thread):
-    # salje putnike na stanicu
+    # sends passengers to the station
     def run(self):
         while True:
             Stanica().start()

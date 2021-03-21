@@ -1,6 +1,6 @@
 # Senate-Bus-Python-Example
 
-This is an example solution in Python for the Senate Bus threading problem proposed by Allen B. Downey in his
+This is my solution in Python for the Senate Bus threading problem proposed by Allen B. Downey in his
 book "Little Book of Semaphores" under the "Not Remotely Classical Problems" section. 
 
 The problem goes as follows:
